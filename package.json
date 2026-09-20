@@ -1,0 +1,25 @@
+{
+  "name": "fshows-com_wangbao-ai",
+  "version": "1.0.0",
+  "description": "Wangbao AI 产品落地页（Landing Page）：中文静态营销页，介绍产品定位、核心功能与价值主张，并提供文档与联系入口。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fshows-com/wangbao-ai.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fshows-com/wangbao-ai/issues"
+  },
+  "homepage": "https://github.com/fshows-com/wangbao-ai#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2",
+    "typescript": "^7.0.2"
+  }
+}
