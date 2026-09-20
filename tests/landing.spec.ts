@@ -1,7 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 import { LandingPage } from './pages/landing.page';
 
-const EXPECTED_EXTERNAL_URL = 'https://www.wangbaoai.com/';
+const EXPECTED_EXTERNAL_URL = 'https://www.wangbaoai.com';
 
 /**
  * Wangbao AI 落地页 E2E 测试
@@ -140,7 +140,8 @@ test.describe('Wangbao AI 落地页', () => {
     test('Footer 含联系方式与次要链接', async () => {
       await expect(landing.footer).toContainText('联系方式');
       const footerLinks = landing.footer.locator('.site-footer__link');
-      await expect(footerLinks.count()).toBeGreaterThan(0);
+      const linkCount = await footerLinks.count();
+      expect(linkCount).toBeGreaterThan(0);
       for (const link of await footerLinks.all()) {
         await expect(link).toHaveAttribute('href', EXPECTED_EXTERNAL_URL);
         await expect(link).toHaveAttribute('target', '_blank');
@@ -149,23 +150,36 @@ test.describe('Wangbao AI 落地页', () => {
   });
 
   // ============ REQ-007: 响应式布局 ============
+
+  /**
+   * 获取 .card-grid 的计算后 grid-template-columns 列数。
+   * 浏览器会将 repeat(4, minmax(0, 1fr)) 解析为具体像素值，如 "255px 255px 255px 255px"。
+   */
+  async function getGridColumnCount(page: Page): Promise<number> {
+    return page.evaluate(() => {
+      const grid = document.querySelector('.card-grid') as HTMLElement;
+      const computed = window.getComputedStyle(grid).gridTemplateColumns;
+      return computed.trim().split(/\s+/).filter(Boolean).length;
+    });
+  }
+
   test.describe('REQ-007 响应式布局', () => {
     test('桌面端（1440px）功能卡片 4 列网格', async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
-      const grid = page.locator('.card-grid');
-      await expect(grid).toHaveCSS('grid-template-columns', /1fr\s+1fr\s+1fr\s+1fr/);
+      const colCount = await getGridColumnCount(page);
+      expect(colCount).toBe(4);
     });
 
     test('平板端（900px）功能卡片 2 列网格', async ({ page }) => {
       await page.setViewportSize({ width: 900, height: 1024 });
-      const grid = page.locator('.card-grid');
-      await expect(grid).toHaveCSS('grid-template-columns', /1fr\s+1fr/);
+      const colCount = await getGridColumnCount(page);
+      expect(colCount).toBe(2);
     });
 
     test('移动端（390px）功能卡片单列布局', async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 844 });
-      const grid = page.locator('.card-grid');
-      await expect(grid).toHaveCSS('grid-template-columns', /minmax\(0,\s*1fr\)/);
+      const colCount = await getGridColumnCount(page);
+      expect(colCount).toBe(1);
     });
 
     test('移动端（390px）无横向溢出', async ({ page }) => {
